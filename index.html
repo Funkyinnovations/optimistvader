@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OptimistVäder Prototyp</title>
+  <style>
+    body { margin:0; font-family:sans-serif; background:#121212; color:#EEE; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:100vh; }
+    .container { width:90%; max-width:400px; margin-top:40px; text-align:center; }
+    .button { background:#FFA500; color:#121212; padding:12px 20px; border:none; border-radius:8px; font-size:16px; cursor:pointer; margin-top:10px; }
+    .weather-box { margin-top:20px; padding:20px; background:#1E1E1E; border-radius:12px; width:100%; }
+    .temp { font-size:48px; }
+    .details { font-size:18px; margin-top:8px; }
+    .timeline { margin-top:20px; display:flex; overflow-x:auto; padding-bottom:10px; }
+    .hour { flex:0 0 auto; margin-right:12px; text-align:center; }
+    .hour .time { font-size:14px; }
+    .hour .hIcon { font-size:24px; }
+    .hour .hTemp { font-size:16px; }
+    .hour .hRain { font-size:14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>OptimistVäder</h1>
+    <div><strong>Ort:</strong> Karlstad</div>
+    <button class="button" onclick="loadWeather()">Hämta väder</button>
+    <div class="weather-box" id="weatherBox" style="display:none;">
+      <div class="temp" id="temp">--°C</div>
+      <div class="details" id="feelsLike">Känns som: --°C</div>
+      <div class="details" id="rain">Regn: -- mm</div>
+      <div class="timeline" id="timeline"></div>
+    </div>
+  </div>
+
+  <script>
+    function loadWeather() {
+      const data = {
+        temp: 22,
+        feels: 20,
+        rain: 1.2,
+        timeline: [
+          {time:'06', icon:'☀️', temp:16, rain:0},
+          {time:'09', icon:'☀️', temp:19, rain:0},
+          {time:'12', icon:'☀️', temp:22, rain:0},
+          {time:'15', icon:'🌤️', temp:21, rain:0.5},
+          {time:'18', icon:'🌧️', temp:18, rain:1.2},
+          {time:'21', icon:'🌙', temp:15, rain:0}
+        ]
+      };
+      document.getElementById('temp').textContent = data.temp + '°C';
+      document.getElementById('feelsLike').textContent = 'Känns som: ' + data.feels + '°C';
+      document.getElementById('rain').textContent = 'Regn: ' + data.rain + ' mm';
+      const tl = document.getElementById('timeline');
+      tl.innerHTML = '';
+      data.timeline.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'hour';
+        div.innerHTML = `<div class="time">${h.time}</div><div class="hIcon">${h.icon}</div><div class="hTemp">${h.temp}°C</div><div class="hRain">${h.rain} mm</div>`;
+        tl.appendChild(div);
+      });
+      document.getElementById('weatherBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
