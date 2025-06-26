@@ -3,63 +3,123 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OptimistVäder Prototyp</title>
+  <title>OptimistVäder</title>
   <style>
-    body { margin:0; font-family:sans-serif; background:#121212; color:#EEE; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; min-height:100vh; }
-    .container { width:90%; max-width:400px; margin-top:40px; text-align:center; }
-    .button { background:#FFA500; color:#121212; padding:12px 20px; border:none; border-radius:8px; font-size:16px; cursor:pointer; margin-top:10px; }
-    .weather-box { margin-top:20px; padding:20px; background:#1E1E1E; border-radius:12px; width:100%; }
-    .temp { font-size:48px; }
-    .details { font-size:18px; margin-top:8px; }
-    .timeline { margin-top:20px; display:flex; overflow-x:auto; padding-bottom:10px; }
-    .hour { flex:0 0 auto; margin-right:12px; text-align:center; }
-    .hour .time { font-size:14px; }
-    .hour .hIcon { font-size:24px; }
-    .hour .hTemp { font-size:16px; }
-    .hour .hRain { font-size:14px; }
+    body {
+      background-color: #121212;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .container {
+      max-width: 500px;
+      width: 100%;
+      padding: 1rem;
+    }
+    h1 {
+      color: #ffd700;
+      text-align: center;
+    }
+    .weather {
+      background-color: #1e1e1e;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+      box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+    .weather-icon {
+      font-size: 64px;
+      color: #ffd700;
+      text-align: center;
+    }
+    .timeline {
+      display: flex;
+      overflow-x: auto;
+      margin-top: 1rem;
+    }
+    .hour-block {
+      background: #2c2c2c;
+      border-radius: 10px;
+      padding: 0.5rem;
+      margin-right: 0.5rem;
+      min-width: 70px;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>OptimistVäder</h1>
-    <div><strong>Ort:</strong> Karlstad</div>
-    <button class="button" onclick="loadWeather()">Hämta väder</button>
-    <div class="weather-box" id="weatherBox" style="display:none;">
-      <div class="temp" id="temp">--°C</div>
-      <div class="details" id="feelsLike">Känns som: --°C</div>
-      <div class="details" id="rain">Regn: -- mm</div>
-      <div class="timeline" id="timeline"></div>
+    <div class="weather">
+      <div class="weather-icon">☀️</div>
+      <h2 id="location">Laddar plats...</h2>
+      <p id="temperature">Temperatur: 23°C</p>
+      <p id="feelslike">Känns som: 25°C</p>
+      <p id="rain">Regn: 0 mm</p>
+    </div>
+    <div class="timeline" id="timeline">
+      <!-- Tidslinje fylls automatiskt -->
     </div>
   </div>
 
   <script>
-    function loadWeather() {
-      const data = {
-        temp: 22,
-        feels: 20,
-        rain: 1.2,
-        timeline: [
-          {time:'06', icon:'☀️', temp:16, rain:0},
-          {time:'09', icon:'☀️', temp:19, rain:0},
-          {time:'12', icon:'☀️', temp:22, rain:0},
-          {time:'15', icon:'🌤️', temp:21, rain:0.5},
-          {time:'18', icon:'🌧️', temp:18, rain:1.2},
-          {time:'21', icon:'🌙', temp:15, rain:0}
-        ]
-      };
-      document.getElementById('temp').textContent = data.temp + '°C';
-      document.getElementById('feelsLike').textContent = 'Känns som: ' + data.feels + '°C';
-      document.getElementById('rain').textContent = 'Regn: ' + data.rain + ' mm';
-      const tl = document.getElementById('timeline');
-      tl.innerHTML = '';
-      data.timeline.forEach(h => {
-        const div = document.createElement('div');
-        div.className = 'hour';
-        div.innerHTML = `<div class="time">${h.time}</div><div class="hIcon">${h.icon}</div><div class="hTemp">${h.temp}°C</div><div class="hRain">${h.rain} mm</div>`;
-        tl.appendChild(div);
+    const fallbackCity = "Stockholm";
+
+    const sampleData = {
+      "city": "Karlstad",
+      "temperature": 23,
+      "feelsLike": 25,
+      "rain": 0,
+      "timeline": [
+        { hour: "08:00", temp: 21, rain: 0 },
+        { hour: "11:00", temp: 23, rain: 0 },
+        { hour: "14:00", temp: 25, rain: 0 },
+        { hour: "17:00", temp: 24, rain: 0 },
+        { hour: "20:00", temp: 21, rain: 0 }
+      ]
+    };
+
+    function renderWeather(data) {
+      document.getElementById("location").innerText = `Väder för ${data.city}`;
+      document.getElementById("temperature").innerText = `Temperatur: ${data.temperature}°C`;
+      document.getElementById("feelslike").innerText = `Känns som: ${data.feelsLike}°C`;
+      document.getElementById("rain").innerText = `Regn: ${data.rain} mm`;
+
+      const timelineEl = document.getElementById("timeline");
+      timelineEl.innerHTML = "";
+
+      data.timeline.forEach(item => {
+        const block = document.createElement("div");
+        block.className = "hour-block";
+        block.innerHTML = `<strong>${item.hour}</strong><br>${item.temp}°C<br>${item.rain} mm`;
+        timelineEl.appendChild(block);
       });
-      document.getElementById('weatherBox').style.display = 'block';
     }
+
+    function getWeatherWithGeolocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            // Här skulle man normalt kalla ett API med lat/lon
+            renderWeather(sampleData);
+          },
+          error => {
+            sampleData.city = fallbackCity;
+            renderWeather(sampleData);
+          }
+        );
+      } else {
+        sampleData.city = fallbackCity;
+        renderWeather(sampleData);
+      }
+    }
+
+    // Starta direkt utan knapp
+    getWeatherWithGeolocation();
   </script>
 </body>
 </html>
